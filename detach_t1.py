@@ -1,7 +1,11 @@
+#!/usr/bin/env python
+# coding=utf-8
 
-####################################
-#
-###################################
+_author_ = 'mpinizzotto'
+
+
+#Detach T1 gateway from T0 gateway
+
 
 import requests
 import json

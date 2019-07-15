@@ -1,8 +1,10 @@
+#!/usr/bin/env python
+# coding=utf-8
 
+_author_ = 'mpinizzotto'
 
-####################################
-#
-###################################
+# Attaches T1 gateway to T0 gateway
+
 
 import requests
 import json
