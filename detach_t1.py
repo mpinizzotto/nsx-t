@@ -29,7 +29,7 @@ def disconnect_t0(t1_gw):
 
 def main():
     response = disconnect_t0(t1_gw)
-    #print response
+    #print response.status_code
     
 
 if __name__ == '__main__':
