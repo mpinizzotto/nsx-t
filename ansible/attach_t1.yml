@@ -1,0 +1,17 @@
+- hosts: localhost
+  connection: local
+  become: yes
+  vars_files:
+    - answerfile.yml
+  tasks:
+    - name: Attaching T1 to T0 router
+      nsxt_attach_t1:
+        hostname: 'nsxtmgr01'         #"{{hostname }}"
+        username: 'admin'             #"{{username}}"
+        password: 'VMware1!VMware1!'  #"{{password}}"
+        validate_certs: False
+        t0_gw: 'T0-Dummy'
+        t1_gw: 'T1-GW'
+    
+
+
