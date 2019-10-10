@@ -1,0 +1,47 @@
+#Create service-config for firewall threshold monitoring
+
+POST https://nsxmgr-01a.corp.local/api/v1/firewall/profiles
+Authorization: Basic admin password
+content-type: application/json
+ 
+{
+    "cpu_threshold_percentage" : 75,
+    "display_name" : "ESXi DFW Threshold Profile",
+    "mem_threshold_percentage" : 20,
+    "resource_type" : "FirewallCpuMemThresholdsProfile"
+}
+ 
+Note Profile ID
+ 
+Create Service config with ID of profile and NSGroup ID
+ 
+POST https://nsxmgr-01a.corp.local/api/v1/service-configs
+Authorization: Basic admin password
+content-type: application/json
+ 
+{
+    "display_name":"DfwCpuMemServiceConfig",
+    "profiles":[
+           {
+                "profile_type":"FirewallCpuMemThresholdsProfile",
+                "target_id":"<profile id>"
+            }
+        ],
+    "precedence": 10,
+    "applied_to": [
+        {
+            "target_id":"<nsgroup id>",
+            "target_type" : "NSGroup"
+        }
+    ]
+}
+ 
+Verify:
+ 
+GET https://nsxmgr-01a.corp.local/api/v1/service-configs
+ 
+ 
+ 
+ 
+ 
+ 
