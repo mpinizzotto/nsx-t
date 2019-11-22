@@ -5,7 +5,7 @@ _author_ = "mpinizzotto"
 
 """
 
-pulls from csv file and delets all existing tags
+pulls from csv file and deletes all existing tags
 
 """
 
