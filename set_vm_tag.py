@@ -22,8 +22,8 @@ nsxtmgr = "nsxtmgr01"
 auth = HTTPBasicAuth(username, password)
 
 
-def get_current_config(config):
-    vm_name = config.get('name')
+def get_config(line):
+    vm_name = line.get('name')
     url = "https://" + nsxtmgr + "/api/v1/fabric/virtual-machines/?display_name=" + vm_name 
     response = requests.get(url, verify=False, auth=auth)
     parse = json.loads(response.text)
@@ -31,10 +31,10 @@ def get_current_config(config):
     current_tags = parse['results'][0]['tags']
     return external_id, current_tags
 
-def update_tags(external_id, config, current_tags):
+def update_tags(external_id, line, current_tags):
     new_tags = []
-    config.pop('name')
-    new_tags.append(config)
+    line.pop('name')
+    new_tags.append(line)
     
     if current_tags is not None:
         for tags in current_tags:
@@ -77,9 +77,9 @@ def main():
     item_list = read_from_csv('vm_tags.csv')
     tag_list = normalize_tag_list(item_list)
 
-    for config in tag_list:
-        external_id, current_tags = get_current_config(config)
-        response, new_tags = update_tags(external_id, config, current_tags)
+    for line in tag_list:
+        external_id, current_tags = get_config(line)
+        response, new_tags = update_tags(external_id, line, current_tags)
         print response, new_tags
 
 
