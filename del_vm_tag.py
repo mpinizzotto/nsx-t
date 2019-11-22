@@ -22,7 +22,7 @@ nsxtmgr = "nsxtmgr01"
 auth = HTTPBasicAuth(username, password)
 
 
-def get_current_config(config):
+def get_external_id(config):
     vm_name = config.get('name')
     url = "https://" + nsxtmgr + "/api/v1/fabric/virtual-machines/?display_name=" + vm_name 
     response = requests.get(url, verify=False, auth=auth)
@@ -69,7 +69,7 @@ def main():
     tag_list = normalize_tag_list(item_list)
 
     for config in tag_list:
-        external_id = get_current_config(config)
+        external_id = get_external_id(config)
         response = del_tags(external_id)
         print response
 
