@@ -1,0 +1,8 @@
+controller-0,env,prod
+controller-0,platform,lin
+controller-0,appname, web
+controller-1,env,dev
+controller-1,platform,lin
+controller-1,appname,db
+controller-2,env,prod
+controller-2,platform,lin
