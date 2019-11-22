@@ -31,24 +31,22 @@ def get_config(line):
     current_tags = parse['results'][0]['tags']
     return external_id, current_tags
 
+
 def update_tags(external_id, line, current_tags):
     new_tags = []
     line.pop('name')
     new_tags.append(line)
-    
     if current_tags is not None:
         for tags in current_tags:
             new_tags.append(tags)
     else:
-        pass
- 
-    url = "https://" + nsxtmgr + "/api/v1/fabric/virtual-machines?action=update_tags"
+        pass 
     
+    url = "https://" + nsxtmgr + "/api/v1/fabric/virtual-machines?action=update_tags"
     payload =  {
         "external_id": external_id,
-        "tags": new_tags 
-    }    
-
+        "tags": new_tags
+    }
     response = requests.post(url, data=json.dumps(payload), verify=False, auth=auth, headers=headers)
     return response, new_tags
 
@@ -72,6 +70,7 @@ def normalize_tag_list(item_list):
         vm_info['tag'] = line[2]  
         tag_list.append(vm_info)
     return tag_list
+
 
 def main():
     item_list = read_from_csv('vm_tags.csv')
