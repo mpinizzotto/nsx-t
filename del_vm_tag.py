@@ -5,7 +5,7 @@ _author_ = "mpinizzotto"
 
 """
 
-pulls from csv file (name, scope, tag), updates tags on virtual maching. name = virtual machine name
+pulls from csv file and delets all existing tags
 
 """
 
