@@ -1,0 +1,60 @@
+
+---
+
+nsx_manager: "nsxmgr-01a.corp.local"
+nsx_username: "admin"
+nsx_password: "VMware1!VMware1!"
+validate_certs: "false"
+
+########### Security Groups ###############
+
+security_group:
+  state: "present"
+  #state: "absent"
+
+mygroups:
+  - {display_name: "Prd.db", domain_id: "default", expression: [{ member_type: "VirtualMachine", value: "db", key: "Tag", operator: "EQUALS", resource_type: "Condition" }]}
+  - {display_name: "Prd.web", domain_id: "default", expression: [{ member_type: "VirtualMachine", value: "web", key: "Tag", operator: "EQUALS", resource_type: "Condition" }]}
+  - {display_name: "Prd.app", domain_id: "default", expression: [{ member_type: "VirtualMachine", value: "app", key: "Tag", operator: "EQUALS", resource_type: "Condition" }]}
+  - {display_name: "Prd.lb-VIP", domain_id: "default", expression: [{ member_type: "VirtualMachine", value: "lb", key: "Tag", operator: "EQUALS", resource_type: "Condition" }]}
+  - {display_name: "remote_users", description: "Remote Users", domain_id: "default", expression: [{ resource_type: "IPAddressExpression", ip_addresses: ["192.168.0.0/16"]}]}
+  - {display_name: "dns", description: "DNS Server", domain_id: "default", expression: [{ resource_type: "IPAddressExpression", ip_addresses: ["192.168.110.10"]}]}
+  - {display_name: "ntp", description: "NTP Server", domain_id: "default", expression: [{ resource_type: "IPAddressExpression", ip_addresses: ["192.168.110.10"]}]}
+  - {display_name: "Dev.db", domain_id: "default", expression: [{ member_type: "VirtualMachine", value: "db", key: "Tag", operator: "EQUALS", resource_type: "Condition" }]}
+  - {display_name: "Dev.web", domain_id: "default", expression: [{ member_type: "VirtualMachine", value: "web", key: "Tag", operator: "EQUALS", resource_type: "Condition" }]}
+  - {display_name: "Dev.app", domain_id: "default", expression: [{ member_type: "VirtualMachine", value: "app", key: "Tag", operator: "EQUALS", resource_type: "Condition" }]}
+  - {display_name: "Dev.lb-VIP", domain_id: "default", expression: [{ member_type: "VirtualMachine", value: "lb", key: "Tag", operator: "EQUALS", resource_type: "Condition" }]}
+  - {display_name: "QA.db", domain_id: "default", expression: [{ member_type: "VirtualMachine", value: "db", key: "Tag", operator: "EQUALS", resource_type: "Condition" }]}
+  - {display_name: "QA.web", domain_id: "default", expression: [{ member_type: "VirtualMachine", value: "web", key: "Tag", operator: "EQUALS", resource_type: "Condition" }]}
+  - {display_name: "QA.app", domain_id: "default", expression: [{ member_type: "VirtualMachine", value: "app", key: "Tag", operator: "EQUALS", resource_type: "Condition" }]}
+  - {display_name: "QA.lb-VIP", domain_id: "default", expression: [{ member_type: "VirtualMachine", value: "lb", key: "Tag", operator: "EQUALS", resource_type: "Condition" }]}
+
+### VM tags ####
+
+vm_tags:
+  - {virtual_machine_display_name: "web-01a", remove_other_tags: False, add_tags: [{ tag: "web", scope: "app"},{tag: "Prd", scope: "env"}]}
+  - {virtual_machine_display_name: "web-02a", remove_other_tags: False, add_tags: [{ tag: "web", scope: "app"},{tag: "Prd", scope: "env"}]}
+  - {virtual_machine_display_name: "app-01a", remove_other_tags: False, add_tags: [{ tag: "app", scope: "app"},{tag: "Prd", scope: "env"}]}
+  - {virtual_machine_display_name: "db-01a", remove_other_tags: False, add_tags: [{ tag: "db", scope: "app"},{tag: "Prd", scope: "env"}]}
+  - {virtual_machine_display_name: "lb-01a", remove_other_tags: False, add_tags: [{ tag: "lb", scope: "app"},{tag: "Prd", scope: "env"}]}   
+
+  
+######## Security Policy ##################
+
+security_policy:
+  state: "present"
+  #state: "absent"
+
+security_policies:
+#Allow NTP
+  - {display_name: "NTP", domain_id: "default", category: "Infrastructure", rules: [{display_name: "Allow_Server_to_NTP", sequence_number: 1, source_groups: ["any"], destination_groups: ["/infra/domains/default/groups/ntp"], services: ["/infra/services/NTP"], action: "ALLOW"}]}
+#Allow DNS
+  - {display_name: "DNS", domain_id: "default", category: "Infrastructure", rules: [{display_name: "Allow_Server_to_DNS", sequence_number: 1, source_groups: ["any"], destination_groups: ["/infra/domains/default/groups/dns"], services: ["/infra/services/DNS", "/infra/services/DNS-UDP"], action: "ALLOW"}]}
+#WebApp Prod
+  - {display_name: "Prd.CustomerDataBase", domain_id: "default", category: "Application", rules: [{display_name: "Allow_Users_to_Prd.lb-VIP", sequence_number: 1, source_groups: ["/infra/domains/default/groups/remote_users"], destination_groups: ["/infra/domains/default/groups/Prd.lb-VIP"], services: ["/infra/services/HTTPS"], action: "ALLOW"},{display_name: "Allow_Prd.lb-VIP_to_Prd.web", sequence_number: 2, source_groups: ["/infra/domains/default/groups/Prd.lb-VIP"], destination_groups: ["/infra/domains/default/groups/Prd.web"], services: ["/infra/services/HTTPS"], action: "ALLOW"},{display_name: "Allow_Prd.web_to_Prd.app", sequence_number: 3, source_groups: ["/infra/domains/default/groups/Prd.web"], destination_groups: ["/infra/domains/default/groups/Prd.app"], services: ["/infra/services/TCP-8443"], action: "ALLOW"}, {display_name: "Allow_Prd.app_to_Prd.db", sequence_number: 4, source_groups: ["/infra/domains/default/groups/Prd.app"], destination_groups: ["/infra/domains/default/groups/Prd.db"], services: ["/infra/services/HTTP", ], action: "ALLOW"}]}
+#WebApp Dev
+#  - {display_name: "Dev.CustomerDataBase", domain_id: "default", category: "Application", rules: [{display_name: "Allow_Users_to_Dev.lb-VIP", sequence_number: 1, source_groups: ["/infra/domains/default/groups/remote_users"], destination_groups: ["/infra/domains/default/groups/Dev.lb-VIP"], services: ["/infra/services/HTTPS"], action: "ALLOW"},{display_name: "Allow_Dev.lb-VIP_to_Dev.web", sequence_number: 2, source_groups: ["/infra/domains/default/groups/Dev.lb-VIP"], destination_groups: ["/infra/domains/default/groups/Dev.web"], services: ["/infra/services/HTTPS"], action: "ALLOW"},{display_name: "Allow_Dev.web_to_Dev.app", sequence_number: 3, source_groups: ["/infra/domains/default/groups/Dev.web"], destination_groups: ["/infra/domains/default/groups/Dev.app"], services: ["/infra/services/TCP-8443"], action: "ALLOW"}, {display_name: "Allow_Dev.app_to_Dev.db", sequence_number: 4, source_groups: ["/infra/domains/default/groups/Dev.app"], destination_groups: ["/infra/domains/default/groups/Dev.db"], services: ["/infra/services/HTTP", ], action: "ALLOW"}]}
+  
+#WebApp Dev
+#  - {display_name: "QA.CustomerDataBase", domain_id: "default", category: "Application", rules: [{display_name: "Allow_Users_to_QA.lb-VIP", sequence_number: 1, source_groups: ["/infra/domains/default/groups/remote_users"], destination_groups: ["/infra/domains/default/groups/QA.lb-VIP"], services: ["/infra/services/HTTPS"], action: "ALLOW"},{display_name: "Allow_QA.lb-VIP_to_QA.web", sequence_number: 2, source_groups: ["/infra/domains/default/groups/QA.lb-VIP"], destination_groups: ["/infra/domains/default/groups/QA.web"], services: ["/infra/services/HTTPS"], action: "ALLOW"},{display_name: "Allow_QA.web_to_QA.app", sequence_number: 3, source_groups: ["/infra/domains/default/groups/QA.web"], destination_groups: ["/infra/domains/default/groups/QA.app"], services: ["/infra/services/TCP-8443"], action: "ALLOW"}, {display_name: "Allow_QA.app_to_QA.db", sequence_number: 4, source_groups: ["/infra/domains/default/groups/QA.app"], destination_groups: ["/infra/domains/default/groups/QA.db"], services: ["/infra/services/HTTP", ], action: "ALLOW"}]}
+  

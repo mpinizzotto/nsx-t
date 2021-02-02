@@ -1,0 +1,41 @@
+# Copyright 2018 VMware, Inc.
+# SPDX-License-Identifier: BSD-2-Clause OR GPL-3.
+---
+- hosts: localhost
+  become: yes
+  vars_files:
+    - policy_vars.yml
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+  tasks:
+    - name: "Update Tags on VMs"
+      nsxt_vm_tags:
+        hostname: "{{ nsx_manager }}"
+        username: "{{ nsx_username }}"
+        password: "{{ nsx_password }}"
+        validate_certs: "{{ validate_certs }}"
+        virtual_machine_display_name: "{{ item.virtual_machine_display_name}}"
+        remove_other_tags: "{{ item.remove_other_tags }}"
+        add_tags: "{{ item.add_tags }}"
+        #  - scope: "app" 
+        #    tag: "web"
+        #remove_tags_with_scope: "{{ item.remove_tags_with_scope }}"
+      with_items:
+        - "{{ vm_tags }}"
+
+
+
+
+## Supported Parameters ###
+#add_tags, 
+#ca_path, hostname, 
+#nsx_cert_path, 
+#nsx_key_path, 
+#password, 
+#port, 
+#remove_other_tags, 
+#remove_tags_with_scope, 
+#request_headers, username, 
+#validate_certs, 
+#virtual_machine_display_name, 
+#virtual_machine_id
