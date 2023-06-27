@@ -30,8 +30,7 @@ def create_security_group(line,args):
         path = 'infra'
        
     if (args.type) == 'global':
-        path = 'infra'
-        #change path to 'global-infra' 
+        path = 'global-infra'
      
     url = "https://" + args.manager + "/policy/api/v1/" + path + "/domains/default/groups/" + sg_name 
     
