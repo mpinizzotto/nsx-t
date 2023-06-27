@@ -9,6 +9,13 @@ import json
 from requests.auth import HTTPBasicAuth
 requests.packages.urllib3.disable_warnings()
 
+"""
+Creates local or global security group wtih membership criteria VM tag and/or scope
+Pulls security group name,scope,tag from .csv file
+e.g mygroup,app,web
+If security group exists, will skip creation
+"""
+
 _author_ = "mpinizzotto"
 
 def arguments():
