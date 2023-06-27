@@ -1,0 +1,98 @@
+#usr/bin/env python
+#coding utf-8
+
+import argparse
+import csv
+import sys
+import requests
+import json
+from requests.auth import HTTPBasicAuth
+requests.packages.urllib3.disable_warnings()
+
+_author_ = "mpinizzotto"
+
+def arguments():
+    parser = argparse.ArgumentParser(description="Creates Local or Global NSX Security Groups. Pulls name,scope,tag from csv file. Membership criteria is virtual machine tag.")
+    parser.add_argument('-m', '--manager', type=str, required=True,help='NSX Manger IP Address')
+    parser.add_argument('-u', '--user', type=str, required=True)
+    parser.add_argument('-p', '--password', type=str, required=True)
+    parser.add_argument('-t', '--type', type=str, required=True, help='Local or Global manager groups. Allowed values are local=Local Manger or global=Global Manager')
+    parser.add_argument('-f', '--filename', type=str, required=True, help='Path to csv file')
+    args = parser.parse_args()
+    return args
+
+def create_security_group(line,args):
+    sg_name = line.get('name')
+    auth = (args.user,args.password)
+    headers = {'content-type': 'application/json'}
+
+    if (args.type) == 'local':
+        path = 'infra'
+       
+    if (args.type) == 'global':
+        path = 'infra'
+        #change path to 'global-infra' 
+     
+    url = "https://" + args.manager + "/policy/api/v1/" + path + "/domains/default/groups/" + sg_name 
+    
+    response = requests.get(url, verify=False, auth=auth)
+    parse = json.loads(response.text)
+    
+    if "display_name" in parse:
+        pass  
+        
+    else:
+        tag = line.get('tag')
+        scope = line.get('scope')
+        
+        payload = {
+            "expression": [
+              {
+                "member_type": "VirtualMachine",
+                "value": scope + "|" + tag,
+                "key": "Tag",
+                "operator": "EQUALS",
+                "resource_type": "Condition"
+              }
+            ],
+            "display_name": sg_name
+            } 
+          		
+        response = requests.put(url, data=json.dumps(payload), verify=False, auth=auth, headers=headers)
+    
+    return response
+
+def read_from_csv(file,args):
+    item_list = []
+    csvfile = open(args.filename, 'r')
+    csv_in = csv.reader(csvfile)
+    for item in csv_in:
+        item_list.append(item)
+    return item_list
+    cvsfile.close()
+
+def normalize_sg_list(item_list):
+    sg_list = []
+    for line in item_list:
+        if line == []:
+            continue
+        else:
+            sg_info = {}
+            sg_info['name'] = line[0]
+            sg_info['scope'] = line[1]
+            sg_info['tag'] = line[2]
+            sg_list.append(sg_info)
+    return sg_list
+
+def main():
+
+    args = arguments()
+    item_list = read_from_csv(file,args)
+    sg_list = normalize_sg_list(item_list)
+    print ""
+    for line in sg_list:
+        response = create_security_group(line,args)
+        #print line,response
+
+if __name__ == '__main__':
+    main()
